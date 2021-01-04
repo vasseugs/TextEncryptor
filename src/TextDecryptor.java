@@ -5,6 +5,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 
 public class TextDecryptor {
 
@@ -25,24 +26,44 @@ public class TextDecryptor {
         }
 
         // ввод ключа в консоль
-        System.out.println("Введите восьмизначный ключ шифрования.");
+        System.out.println("Введите ключ шифрования.");
         this.key = readFromConsole().toCharArray();
         System.out.println("Ключ принят.");
         System.out.println("Процедура расшифровки запущена, подождите...");
 
         /* считываем содержимое текстового файла, преобразовывем в UTF-8 по умолчанию;
         может случиться, что файл в другой кодировке, поэтому перестраховываемся */
-        String fileContent = "";
+        String stringFileContent = "";
         try {
-            fileContent = Files.readString(filePath, StandardCharsets.UTF_8);
+            stringFileContent = Files.readString(filePath, StandardCharsets.UTF_8);
         } catch(IOException e) {
             e.printStackTrace();
         }
 
         // отправляем содержимое на расшифровку и получаем зашифрованное содержимое
-        String decryptedContent = decryptingProcedure(fileContent);
-        System.out.println("Расшифровка завершена:");
-        System.out.println(decryptedContent);
+        String decryptedContent = decryptingProcedure(stringFileContent);
+        System.out.println("Расшифровка завершена.");
+
+        // результируем расшифровку в файл
+        try {
+            Path encodeTo = Paths.get("D:/decrypted.txt");
+
+            if(Files.exists(encodeTo)) {
+                Files.writeString(encodeTo,
+                        decryptedContent,
+                        StandardCharsets.UTF_8,
+                        StandardOpenOption.TRUNCATE_EXISTING,
+                        StandardOpenOption.WRITE);
+            } else {
+                Files.writeString(encodeTo,
+                        decryptedContent,
+                        StandardCharsets.UTF_8,
+                        StandardOpenOption.CREATE_NEW,
+                        StandardOpenOption.WRITE);
+            }
+        } catch(IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private String decryptingProcedure(String stringFileContent) {
@@ -111,19 +132,32 @@ public class TextDecryptor {
         // создаем пустой массив для расшифрованного содержимого
         char[] decryptedContent = new char[encryptedContent.length];
 
-            /* вычитаем из блоков по 8 символов ключ шифрования
-            одна итерация - 8 символов */
-        for(int encrIndex = 0; encrIndex < encryptedContent.length; encrIndex += 8) {
+            /* вычитаем из блоков длиной с ключ ключ шифрования,
+            одна итерация равна длине ключа */
+        for(int blockIndex = 0; blockIndex < encryptedContent.length; blockIndex += key.length) {
 
             // заполняем временный массив зашифрованным содержимым
             for(int storageIndex = 0; storageIndex < tempStorage.length; storageIndex++) {
-                tempStorage[storageIndex] = encryptedContent[encrIndex+storageIndex];
+
+                /* при неверно введенном ключе может случиться ошибка
+                завышения индекса в массиве с зашифрованным текстом
+                 */
+                if ((blockIndex + storageIndex) < encryptedContent.length) {
+                    tempStorage[storageIndex] = encryptedContent[blockIndex+storageIndex];
+                }
             }
 
                 /* посимвольно вычитаем из содержимого временного массива ключ
                 и помещаем результат в итоговый массив */
-            for(int resIndex = 0; resIndex < 8; resIndex++) {
-                decryptedContent[encrIndex+resIndex] = (char) (tempStorage[resIndex] - key[resIndex]);
+            for(int storageIndex = 0; storageIndex < tempStorage.length; storageIndex++) {
+
+                /* при неверно введенном ключе может случиться ошибка
+                завышения индекса в массиве с зашифрованным текстом
+                 */
+                if((blockIndex + storageIndex) < encryptedContent.length) {
+                    decryptedContent[blockIndex+storageIndex] = (char) (tempStorage[storageIndex] - key[storageIndex]);
+
+                }
             }
         }
 

@@ -26,7 +26,7 @@ public class TextEncryptor {
         }
 
         // ввод ключа в консоль
-        System.out.println("Введите восьмизначный ключ шифрования.");
+        System.out.println("Введите ключ шифрования.");
         this.key = readFromConsole().toCharArray();
         System.out.println("Ключ принят.");
         System.out.println("Процедура шифрования запущена, подождите...");
@@ -44,10 +44,9 @@ public class TextEncryptor {
         // отправляем содержимое на шифрование и получаем зашифрованное содержимое
         String encryptedContent = encryptingProcedure(fileContent);
 
-        /* переписываем содержимое файла зашифрованным содержимым.
-        проверяем, существует ли уже конечный файл */
+        /* результируем шифрование в файл */
         try {
-            Path encodeTo = Paths.get("D:/encryptedPassword.txt");
+            Path encodeTo = Paths.get("D:/encrypted.txt");
 
             if(Files.exists(encodeTo)) {
                 Files.writeString(encodeTo,
@@ -95,10 +94,10 @@ public class TextEncryptor {
              */
 
             // делаем длину исходного текста кратной длине ключа
-            originalContent = addDummies(originalContent);
+            char[] preparedContent = addDummies(originalContent);
 
             // применяем к исходному тексту блочное шифрование
-            encryptedContent = blockEncrypting(originalContent);
+            encryptedContent = blockEncrypting(preparedContent);
 
         } else {
             /* если содержимое файла кратно длине ключа, то шифруем файл
@@ -170,23 +169,23 @@ public class TextEncryptor {
     }
 
     // метод для блочного шифрования подготовленного к шифрованию текста
-    private char[] blockEncrypting(char[] originalContent) {
+    private char[] blockEncrypting(char[] preparedContent) {
 
         char[] tempStorage = new char[key.length]; //временное хранилище для шифруемого участка текста
-        char[] encryptedContent = new char[originalContent.length]; // хранилище для зашифрованного содержимого
+        char[] encryptedContent = new char[preparedContent.length]; // хранилище для зашифрованного содержимого
 
-        // складываем блоки 8 символов из текста с ключом.
-        for(int textIndex = 0; textIndex < originalContent.length; textIndex += 8) { // одна итерация - 8 символов
+        // складываем блок текста с ключом
+        for(int blockIndex = 0; blockIndex < preparedContent.length; blockIndex += key.length) { // одна итерация - 8 символов
 
             //заполняем временный массив незашифрованным содержимым
             for(int storageIndex = 0; storageIndex < tempStorage.length; storageIndex++) // одна итерация - 1 символ заполняет временный массив
             {
-                tempStorage[storageIndex] = originalContent[textIndex+storageIndex];
+                tempStorage[storageIndex] = preparedContent[blockIndex+storageIndex];
             }
 
             //складываем временный массив и ключ и помещаем результат в итоговый массив
-            for(int sumIndex = 0; sumIndex < 8; sumIndex++) {
-                encryptedContent[textIndex + sumIndex] = (char) (tempStorage[sumIndex] + key[sumIndex]);
+            for(int sumIndex = 0; sumIndex < key.length; sumIndex++) {
+                encryptedContent[blockIndex + sumIndex] = (char) (tempStorage[sumIndex] + key[sumIndex]);
             }
         }
 
