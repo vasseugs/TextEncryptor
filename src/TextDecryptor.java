@@ -26,10 +26,7 @@ public class TextDecryptor {
 
         // ввод ключа в консоль
         System.out.println("Введите восьмизначный ключ шифрования.");
-        String stringKey = readFromConsole();
-        System.out.println("Ключ: " + stringKey);
-
-        this.key = keyHandler(stringKey); // видоизменяем ключ и преобразовывем в символьный массив
+        this.key = readFromConsole().toCharArray();
         System.out.println("Ключ принят.");
         System.out.println("Процедура расшифровки запущена, подождите...");
 
@@ -103,23 +100,6 @@ public class TextDecryptor {
         }
 
         return consoleData;
-    }
-
-    // метод для преобразования исходного строкового ключа в новый
-    private char[] keyHandler(String originalKey) {
-
-        // преобразуем ключ массив символов
-        char[] originalKeyArray = originalKey.toCharArray();
-        // массив, где будет храниться перемешанный ключ
-        char[] charSwitchedArray = originalKeyArray.clone();
-
-        //меняем местами пары байтов
-        switchSymbols(charSwitchedArray, 0, 6 );
-        switchSymbols(charSwitchedArray, 1, 3 );
-        switchSymbols(charSwitchedArray, 4, 7 );
-        switchSymbols(charSwitchedArray, 5, 2 );
-
-        return charSwitchedArray;
     }
 
     // метод меняет местами пары байтов в массиве
