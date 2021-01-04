@@ -84,13 +84,15 @@ public class TextEncryptor {
     // функция для шифрования массива символов
     private char[] encryptingFunction(char[] originalContent) {
 
-        /* если длина текста не кратна длине ключа, то добавляем в конце массива нужное количество байт
-        и заполняем их заглушками, добавляем признак конца строки, который при переводе в int
-        показывает, сколько заглушек было поставлено */
-
         char[] encryptedContent; // массив для зашифрованного текста
 
         if((originalContent.length % key.length) != 0) {
+
+            /* если длина текста не кратна длине ключа, то добавляем
+             конце массива нужно колчество символов-заглушек и признак конца
+             строки, который при переводе в int показывает, сколько заглушек было
+             вставлено
+             */
 
             // делаем длину исходного текста кратной длине ключа
             originalContent = addDummies(originalContent);
@@ -127,16 +129,6 @@ public class TextEncryptor {
         return consoleData;
     }
 
-
-    // метод меняет местами символы в массиве
-    private void switchSymbols(char[] array, int index1, int index2) {
-        char tempStorage;
-
-        tempStorage = array[index1];
-        array[index1] = array[index2];
-        array[index2] = tempStorage;
-
-    }
 
     /* этот метод используется, если длина шифруемого текста не кратна
     длине ключа. Он дополняет имеющийся текст пустышками в конце настолько,

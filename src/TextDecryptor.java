@@ -102,15 +102,6 @@ public class TextDecryptor {
         return consoleData;
     }
 
-    // метод меняет местами пары байтов в массиве
-    private void switchSymbols(char[] array, int index1, int index2) {
-        char tempStorage;
-
-        tempStorage = array[index1];
-        array[index1] = array[index2];
-        array[index2] = tempStorage;
-
-    }
 
     // метод для расшифровки подготовленного текста блочным механизмом
     private char[] blockDecrypting(char[] encryptedContent) {
