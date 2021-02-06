@@ -7,33 +7,33 @@ import java.nio.file.StandardOpenOption;
 
 public class TextEncryptor {
 
-    private char[] key; // переменная для хранения ключа шифрования
+    private char[] key;
 
-    // метод для отправки файла на шифрование
+    // a method to send the file to encryption
     public void encrypt() {
 
-        System.out.println("Введите путь к файлу, который нужно зашифровать.");
-        // переменная для хранения пути к файлу
-        String fileName = readFromConsole();
+        System.out.print("Enter the file path: ");
 
-        // проверяем этот путь на существование файла
-        Path filePath = Paths.get(fileName);
+        // checking if the file exists
+        Path filePath = Paths.get(readFromConsole());
         if(filePath.toFile().exists()) {
-            System.out.println("Файл найден. ");
+            System.out.println("File found.");
         } else {
-            System.out.println("Проверьте правильность пути к файлу.");
+            System.out.println("File not found. Check if the file path is correct.");
             return;
         }
 
-        // ввод ключа в консоль
-        System.out.println("Введите ключ шифрования.");
+        System.out.print("Enter the path where to encrypt your file: ");
+        Path encodeTo = Paths.get(readFromConsole());
+
+        // entering the key
+        System.out.println("Enter the encryption key.");
         this.key = readFromConsole().toCharArray();
-        System.out.println("Ключ принят.");
-        System.out.println("Процедура шифрования запущена, подождите...");
+        System.out.println("Key accepted.");
+        System.out.println("Encryption procedure started, please wait...");
 
-
-        /* считываем содержимое текстового файла, преобразовывем в UTF-8 по умолчанию;
-        может случиться, что файл в другой кодировке, поэтому перестраховываемся */
+        /* reading file contents and transforming into UTF-8 in case if it has
+        other encoding */
         String fileContent = "";
         try {
             fileContent = Files.readString(filePath, StandardCharsets.UTF_8);
@@ -41,13 +41,11 @@ public class TextEncryptor {
             e.printStackTrace();
         }
 
-        // отправляем содержимое на шифрование и получаем зашифрованное содержимое
+        // sending the content for encryption and receiving the encrypted content
         String encryptedContent = encryptingProcedure(fileContent);
 
-        /* результируем шифрование в файл */
+        //writing encrypted content to a file
         try {
-            Path encodeTo = Paths.get("D:/encrypted.txt");
-
             if(Files.exists(encodeTo)) {
                 Files.writeString(encodeTo,
                         encryptedContent,
@@ -65,54 +63,57 @@ public class TextEncryptor {
             e.printStackTrace();
         }
 
-        System.out.println("Шифрование выполнено.");
+        System.out.println("Encryption completed.");
 
     }
 
-    //метод для шифрования содержимого файла
+    //a method that manages the entire decryption procedure
     private String encryptingProcedure(String stringFileContent) {
-        //преобразуем содержимое файла в массив символов
+        //transform file contents into char array
         char[] charFileContent = stringFileContent.toCharArray();
 
-        // пропускаем содержимое файла через функцию шифрования
+        // sending char array to encryption
         char[] encryptedCharContent = encryptingFunction(charFileContent);
 
         return new String(encryptedCharContent);
     }
 
-    // функция для шифрования массива символов
+    /* encryption procedure carcass. this method chooses option to execute
+    depending on the length of the encrypted content and the encryption key */
     private char[] encryptingFunction(char[] originalContent) {
 
-        char[] encryptedContent; // массив для зашифрованного текста
+        char[] encryptedContent;
 
         if((originalContent.length % key.length) != 0) {
 
-            /* если длина текста не кратна длине ключа, то добавляем
-             конце массива нужно колчество символов-заглушек и признак конца
-             строки, который при переводе в int показывает, сколько заглушек было
-             вставлено
-             */
+            /* if the text length is not a multiple of the key length,
+            then add the required number of dummy characters at the end of
+            the array and a the end of string sign which, being
+            converted to an integer, tells how many
+            dummy characters were put
+            */
 
-            // делаем длину исходного текста кратной длине ключа
+            // making content multiple to key length by adding dummy characters
             char[] preparedContent = addDummies(originalContent);
 
-            // применяем к исходному тексту блочное шифрование
+            // encrypting prepared content
             encryptedContent = blockEncrypting(preparedContent);
 
         } else {
-            /* если содержимое файла кратно длине ключа, то шифруем файл
-            и добавляем признак конца строки в конце в виде лишнего символа */
+            /* if the content of the file is a multiple of the key length,
+            then we encrypt the file and add an end of string sign
+            at the end as an extra character */
 
-            // применяем к тексту блочное шифрование
+            // encrypting the content
             encryptedContent = blockEncrypting(originalContent);
 
-            // добавялем признак конца строки
+            // adding the end of string sign
             encryptedContent = addEndOfStringSign(encryptedContent);
         }
         return encryptedContent;
     }
 
-    // метод для чтения данных из консоли
+    // a method to read lines from console
     private String readFromConsole() {
         String consoleData = "";
         try {
@@ -122,97 +123,95 @@ public class TextEncryptor {
             consoleData = bufferedReadFromConsole.readLine();
             return consoleData;
         } catch(IOException e) {
-            System.out.println("Ошибка ввода-вывода");
+            System.out.println("I/O Error");
         }
 
         return consoleData;
     }
 
 
-    /* этот метод используется, если длина шифруемого текста не кратна
-    длине ключа. Он дополняет имеющийся текст пустышками в конце настолько,
-    чтобы текст стал кратным длине ключа. В конце текста помещается
-    признак конца строки - символ, который при переводе в целочисленное
-    значение указывает, сколько пустышек было помещено в исходный текст.
+    /* we use this method if the length of encrypting text is not multiple to
+    key length. The method adds required number of dummy characters at the end of string
+    to make it multiple to the key length. At the end of string we put
+    the end of string sign - a dummy character that, being converted to integer,
+    tells how many dummy characters were put.
      */
     private char[] addDummies(char[] originalContent) {
 
-        int keyLength = key.length; // длина ключа
-        int originalLength = originalContent.length; // длина исходного текста
+        int keyLength = key.length;
+        int originalLength = originalContent.length; // the original text length
 
-        /* переменная хранит количество элементов, которые нужно добавить в конец массива,
-            чтобы его длина была кратной длине ключа */
+        /* this variable contains the number of dummy characters to add at the
+        end of the array to make it multiple to key length
+        */
         int leftToFill = (keyLength - (originalLength % keyLength));
 
-        // создаем пустой массив по принципу "исходный массив" + количество недостающих элементов
+        //creating an empty array from the original + number of
+        // dummies left to add
         char[] addedOriginalContent = new char[originalContent.length + leftToFill];
 
-        // заполняем новый массив содержимым исходного массива
+        // fill the new array with the contents of the original array
         for(int index = 0; index < originalLength; index++) {
             addedOriginalContent[index] = originalContent[index];
         }
 
-        // помещаем в массив признак конца строки с информацией о количестве заглушек
+        // putting to the array the end of string sign that contains
+        // information of number of added dummies
         char dummiesAmount = (char) leftToFill;
         addedOriginalContent[addedOriginalContent.length - 1] = dummiesAmount;
 
-        // вычисляем, от элемента с каким индексом нужно заполнить массив пустышками
+        // calculate from the element with what index
+        // the array should be filled with dummies
         int dummyStartIndex = addedOriginalContent.length - leftToFill;
-        //заполняем новый массив в конце пустышками, кроме последнего (leftToFill -2)
+        // filling the end of new array with dummies, except the
+        // end of sting sing (leftToFill -2)
         for(int index = 0; index < (leftToFill - 2); index++) {
-            // пустышки
+            // dummies are space symbols
             addedOriginalContent[dummyStartIndex + index] = ' ';
-            // добавляем признак конца строки с указанием количества пустышек
+            // adding the end of string sign that contains a number of dummies
             addedOriginalContent[addedOriginalContent.length - 1] = (char) leftToFill;
         }
         return addedOriginalContent;
     }
 
-    // метод для блочного шифрования подготовленного к шифрованию текста
+    // a method for encrypting prepared text
     private char[] blockEncrypting(char[] preparedContent) {
 
-        char[] tempStorage = new char[key.length]; //временное хранилище для шифруемого участка текста
-        char[] encryptedContent = new char[preparedContent.length]; // хранилище для зашифрованного содержимого
+        char[] tempStorage = new char[key.length]; // temporal storage for the part of text being encrypted
+        char[] encryptedContent = new char[preparedContent.length]; // storage for the encrypted content
 
-        // складываем блок текста с ключом
-        for(int blockIndex = 0; blockIndex < preparedContent.length; blockIndex += key.length) { // одна итерация - 8 символов
+        // add a block of text with a key
+        for(int blockIndex = 0; blockIndex < preparedContent.length; blockIndex += key.length) {
 
-            //заполняем временный массив незашифрованным содержимым
+            // filling temporal storage with the block of original content
             for(int storageIndex = 0; storageIndex < tempStorage.length; storageIndex++) // одна итерация - 1 символ заполняет временный массив
             {
                 tempStorage[storageIndex] = preparedContent[blockIndex+storageIndex];
             }
 
-            //складываем временный массив и ключ и помещаем результат в итоговый массив
+            // adding temporal storage and the key and putting the result to the final array
             for(int sumIndex = 0; sumIndex < key.length; sumIndex++) {
                 encryptedContent[blockIndex + sumIndex] = (char) (tempStorage[sumIndex] + key[sumIndex]);
             }
         }
 
         return encryptedContent;
-
     }
 
-    /* добавление признака конца строки в зашифрованном тексте,
-    если изначально текст был кратным длине ключа
-     */
+    // a method to end of string sign
     private char[] addEndOfStringSign(char[] encryptedContent) {
 
-        // увеличенный массив, чтобы вместился признак конца строки
+        // augmented array. the last index is for the end of string sign
         char[] addedEncryptedContent =  new char[encryptedContent.length + 1];
 
-        //переносим в дополненный массив все зашифрованные элементы
+        // transfer encrypted content to the augmented array
         for(int index = 0; index < encryptedContent.length; index++) {
             addedEncryptedContent[index] = encryptedContent[index];
         }
 
-        //помещаем заглушку в новый массив, ее тоже шифруем
+        // putting the end of string sign and also encrypt it
         addedEncryptedContent[addedEncryptedContent.length - 1] = (char) ('*' + key[0]);
 
         return addedEncryptedContent;
     }
-
-
-
-
 }

@@ -6,31 +6,28 @@ public class Run {
 
     public static void main(String[] args) throws InterruptedException {
 
-        System.out.println("Добро пожаловать в шифратор.");
-        System.out.println("Выберите опцию:");
-        System.out.println("1. Зашифровать файл");
-        System.out.println("2. Расшифровать файл");
+        System.out.println("Welcome to the text encryptor.");
+        System.out.println("Choose the option:");
+        System.out.println("1. Encrypt the file");
+        System.out.println("2. Decrypt the file");
 
-        // считываем ввод с консоли
         String optionToExecute = readFromConsole();
 
-        //запуск шифратора или дешифратора
+        // run encryptor or decryptor depending on chose option
         if(optionToExecute.equals("1")) {
             TextEncryptor textEncryptor = new TextEncryptor();
             textEncryptor.encrypt();
-
         } else if (optionToExecute.equals("2")) {
             TextDecryptor textDecryptor = new TextDecryptor();
             textDecryptor.decrypt();
         } else {
-            System.out.println("Попробуйте еще раз.");
+            System.out.println("You have chosen non existing option. Try again.");
         }
-
     }
 
-    // метод считывает введенную в консоль строку
+    // this method reads a line from console
     static String readFromConsole() {
-        String optionToExecute = null;
+        String optionToExecute = "";
 
         try {
             InputStreamReader readFromConsole = new InputStreamReader(System.in);
