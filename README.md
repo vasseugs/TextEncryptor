@@ -1,6 +1,6 @@
 # TextEncryptor
 
-This is a console program that can encrypt .txt files that uses your unique ecryption key of any length. 
+This is a console program that can encrypt .txt files using your unique ecryption key of any length. 
 I wrote the program during my studying process with the intention to make a program that can be useful for me or for
 somebody else.
 
