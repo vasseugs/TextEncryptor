@@ -17,7 +17,7 @@ your secret diary. Encrypt it and nobody will be able to read it without knowing
 
 Firstly, you need a .txt file. 
 Then, run the program in terminal or your IDE and follow the instructions. 
-When it's time to enter the encrypion key, you can user combination of Unicode characters of ANY length.
+When it's time to enter the encrypion key, you can use a combination of Unicode characters of ANY length.
 The longer the key, the more strong it will be. 
 The only problem is that you need to remebmer encryption key or keep it somewhere. 
 At the end the program will create a .txt file with encrypted information.
